@@ -1,0 +1,11 @@
+[Unit]
+Description=NAT Router
+After=network.target
+
+[Service]
+ExecStart=/root/nat-router.sh
+Type=oneshot
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target
