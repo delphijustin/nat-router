@@ -1,5 +1,9 @@
 #!/bin/bash
 # Simple NAT router for Lubuntu
+if [ "$?" != "start"];
+$0 start > /tmp/nat-router.log
+exit 0
+fi
 source /etc/nat-router.conf
 if [ -z "$LAN_IF"]; then
 echo "LAN_IF is missing"
