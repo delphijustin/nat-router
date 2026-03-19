@@ -1,4 +1,4 @@
-#!/bin/bash
+!/bin/bash
 
 if [ "$EUID" -ne 0 ]; then
   echo "Please run as root"
@@ -14,8 +14,8 @@ echo
 ip -4 addr | awk '/^[0-9]+:/ {iface=$2} /inet / {print iface, $2}'
 read -p "Enter local network interface name(Not the IP or number after /):" LAN_IF
 read -p "Enter public Internet network interface name:" WAN_IF  
-echo "LAN_IF=$LAN_IF\n" > /etc/nat-router.conf
-echo "WAN_IF=$WAN_IF\n" >> /etc/nat-router.conf
+echo "LAN_IF=$LAN_IF" > /etc/nat-router.conf
+echo "WAN_IF=$WAN_IF" >> /etc/nat-router.conf
 
 chmod +x /root/nat-router.sh
 
@@ -25,7 +25,9 @@ systemctl daemon-reload
 systemctl enable nat-router.service
 systemctl start nat-router.service
 if [ "$?" -eq 0 ]; then
+echo
 echo "Router was successfully installed. Set the computers Default gateway to the ip address of this computer."
 exit 0
 fi
+echo
 echo "Failed see the lines above"
