@@ -1,10 +1,6 @@
 #!/bin/bash
 # Simple NAT router for Lubuntu
-# Modify the 3 lines below
-WAN_IF="wlx001f057baadc"      # Internet-facing interface
-LAN_IF="ens18"      # Local network interface
-LAN_NET="172.16.0.0/16" # local network subnet
-
+source /etc/nat-router.conf
 echo "[+] Enabling IP forwarding"
 sysctl -w net.ipv4.ip_forward=1
 
