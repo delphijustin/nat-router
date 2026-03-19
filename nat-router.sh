@@ -1,6 +1,6 @@
 #!/bin/bash
 # Simple NAT router for Lubuntu
-if [ "$?" != "start"];
+if [ "$?" != "start"]; then
 $0 start > /tmp/nat-router.log
 exit 0
 fi
