@@ -1,38 +1,31 @@
 #!/bin/bash
-# Simple NAT router for Lubuntu
-if [ "$?" != "start"]; then
-$0 start > /tmp/nat-router.log
+
+if [ "$EUID" -ne 0 ]; then
+  echo "Please run as root"
+  exit 1
+fi
+
+cp nat-router.sh /root/nat-router.sh || {
+  echo "Copy failed"
+  exit 1
+}
+echo "Choose your local network and public Internet Interfaces"
+echo
+ip -4 addr | awk '/^[0-9]+:/ {iface=$2} /inet / {print iface, $2}'
+read -p "Enter local network interface name(Not the IP or number after /):" LAN_IF
+read -p "Enter public Internet network interface name:" WAN_IF  
+echo "LAN_IF=$LAN_IF" > /etc/nat-router.conf
+echo "WAN_IF=$WAN_IF" >> /etc/nat-router.conf
+
+chmod +x /root/nat-router.sh
+
+cp nat-router.service /etc/systemd/system/nat-router.service
+
+systemctl daemon-reload
+systemctl enable nat-router.service
+systemctl start nat-router.service
+if [ "$?" -eq 0 ]; then
+echo "Router was successfully installed. Set the computers Default gateway to the ip address of this computer."
 exit 0
 fi
-source /etc/nat-router.conf
-if [ -z "$LAN_IF"]; then
-echo "LAN_IF is missing"
-exit 1
-fi
-if [ -z "$WAN_IF"]; then
-echo "wAN_IF is missing"
-exit 1
-fi
-echo "[+] Enabling IP forwarding"
-sysctl -w net.ipv4.ip_forward=1
-echo "[+] Flushing old iptables rules"
-iptables -F
-iptables -t nat -F
-iptables -X
-
-echo "[+] Setting default policies"
-iptables -P FORWARD DROP
-iptables -P INPUT ACCEPT
-iptables -P OUTPUT ACCEPT
-
-echo "[+] Allow forwarding from LAN to WAN"
-iptables -A FORWARD -i "$LAN_IF" -o "$WAN_IF" -j ACCEPT
-
-echo "[+] Allow established/related connections back in"
-iptables -A FORWARD -i "$WAN_IF" -o "$LAN_IF" \
-  -m state --state ESTABLISHED,RELATED -j ACCEPT
-
-echo "[+] Enable NAT (MASQUERADE)"
-iptables -t nat -A POSTROUTING -o "$WAN_IF" -j MASQUERADE
-
-echo "[?] NAT router enabled"
+echo "Failed see the lines above"
